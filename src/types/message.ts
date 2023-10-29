@@ -1,4 +1,7 @@
+import type { Role } from "@/types/role";
+
+
 export type MessageObjectOpenAI = {
-  role: string;
+  role: Role;
   content: string;
-}
+};

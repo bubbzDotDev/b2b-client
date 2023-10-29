@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'
 
 const CONTROLLER_PATH = `${import.meta.env.VITE_SERVER_LOCATION}/api/open-ai`
 

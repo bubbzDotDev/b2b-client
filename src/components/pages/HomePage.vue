@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { generateOpenAIResponse, moderate } from "@/api/open-ai";
-import { generateAI21Response } from "@/api/ai21";
 import autoAnimate from "@formkit/auto-animate";
 import { InputDestination, InputOrigin } from "@/enums/input";
 import { ConversationLength } from "@/enums/form";
@@ -25,7 +24,6 @@ const disableDropdowns = ref(false)
 
 const modelDestinationOptions = [
   { label: 'OpenAI: GPT 3.5 Turbo', value: InputDestination.OPENAI },
-  { label: 'AI21 Studio: J2 Jumbo Instruct', value: InputDestination.AI21 },
 ]
 
 const conversationTurnOptions = [
@@ -41,46 +39,28 @@ const instructionsOpenAI = 'You are a friendly, helpful assistant. '
   + 'You are having a conversation with another chat bot, discussing what the user has requested. '
   + 'There are only two bots in the conversation. '
   + 'Never identify yourself as "User:" in your response. '
+  + 'Never repeat a response from you or the other bot. '
   + 'You will expand upon things the other chat bot says to help the user with their question. '
   + 'You can disagree, agree, and/or add alternatives if you wish. '
   + 'Say things like "I agree" or "I disagree" so it appears as if you are having a conversation. '
   + 'Think of other ways to make it appear like you are having a conversation.'
 
-let chatHistoryWithInstructionsAI21 = 'You are a friendly, helpful assistant. '
-  + 'You are having a conversation with another chat bot, discussing what the user has requested. '
-  + 'There are only two bots in the conversation. '
-  + 'Never identify yourself as "User:" in your response. '
-  + 'You will expand upon things the other chat bot says to help the user with their question. '
-  + 'You can disagree, agree, and/or add alternatives if you wish. '
-  + 'Say things like "I agree" or "I disagree" so it appears as if you are having a conversation. '
-  + 'Think of other ways to make it appear like you are having a conversation. '
-  + 'Never say the conversation is over. '
-  + 'Keep your responses brief. '
-  + 'You will be supplied with a conversation history to refer to. '
-  + 'Respond to the last item received in the conversation history. '
-  + 'Conversation history begins here:\n'
-
-
 function addToChatHistory(origin: InputOrigin, input: string) {
     switch (origin) {
       case InputOrigin.USER:
         chatHistoryOpenAI.push({ role: "user", content: input })
-        chatHistoryWithInstructionsAI21 += `${input}\n`
         break
       case InputOrigin.BOT_1:
         chatHistoryOpenAI.push({ role: "assistant", content: input })
-        chatHistoryWithInstructionsAI21 += `${input}\n`
         break
       case InputOrigin.BOT_2:
         chatHistoryOpenAI.push({ role: "assistant", content: input })
-        chatHistoryWithInstructionsAI21 += `${input}\n`
         break
     }
 }
 
 function clearChatHistory() {
   chatHistoryOpenAI = []
-  chatHistoryWithInstructionsAI21 = ""
   chatHistoryMessageIsVisible.value = true
   previousUserInput.value = ""
   bot1Responses.value = []
@@ -116,11 +96,6 @@ async function generate(fields: FormSubmissionFields) {
     bot1Responses.value.push(response)
     addToChatHistory(InputOrigin.BOT_1, response)
   }
-  if (bot1Destination.value === InputDestination.AI21) {
-    const response = await generateAI21Response(chatHistoryWithInstructionsAI21)
-    bot1Responses.value.push(response)
-    addToChatHistory(InputOrigin.BOT_1, response)
-  }
   chatHistoryWithInstructionsOpenAI = [
     { role: 'system', content: instructionsOpenAI },
     ...chatHistoryOpenAI,
@@ -128,11 +103,6 @@ async function generate(fields: FormSubmissionFields) {
   // Bot 2; response 1
   if (bot2Destination.value === InputDestination.OPENAI) {
     const response = await generateOpenAIResponse(chatHistoryWithInstructionsOpenAI)
-    bot2Responses.value.push(response)
-    addToChatHistory(InputOrigin.BOT_2, response)
-  }
-  if (bot2Destination.value === InputDestination.AI21) {
-    const response = await generateAI21Response(chatHistoryWithInstructionsAI21)
     bot2Responses.value.push(response)
     addToChatHistory(InputOrigin.BOT_2, response)
   }
@@ -149,11 +119,6 @@ async function generate(fields: FormSubmissionFields) {
     bot1Responses.value.push(response)
     addToChatHistory(InputOrigin.BOT_1, response)
   }
-  if (bot1Destination.value === InputDestination.AI21) {
-    const response = await generateAI21Response(chatHistoryWithInstructionsAI21)
-    bot1Responses.value.push(response)
-    addToChatHistory(InputOrigin.BOT_1, response)
-  }
   chatHistoryWithInstructionsOpenAI = [
     { role: 'system', content: instructionsOpenAI },
     ...chatHistoryOpenAI,
@@ -161,11 +126,6 @@ async function generate(fields: FormSubmissionFields) {
   // Bot 2; response 2
   if (bot2Destination.value === InputDestination.OPENAI) {
     const response = await generateOpenAIResponse(chatHistoryWithInstructionsOpenAI)
-    bot2Responses.value.push(response)
-    addToChatHistory(InputOrigin.BOT_2, response)
-  }
-  if (bot2Destination.value === InputDestination.AI21) {
-    const response = await generateAI21Response(chatHistoryWithInstructionsAI21)
     bot2Responses.value.push(response)
     addToChatHistory(InputOrigin.BOT_2, response)
   }
@@ -182,11 +142,6 @@ async function generate(fields: FormSubmissionFields) {
     bot1Responses.value.push(response)
     addToChatHistory(InputOrigin.BOT_1, response)
   }
-  if (bot1Destination.value === InputDestination.AI21) {
-    const response = await generateAI21Response(chatHistoryWithInstructionsAI21)
-    bot1Responses.value.push(response)
-    addToChatHistory(InputOrigin.BOT_1, response)
-  }
   chatHistoryWithInstructionsOpenAI = [
     { role: 'system', content: instructionsOpenAI },
     ...chatHistoryOpenAI,
@@ -194,11 +149,6 @@ async function generate(fields: FormSubmissionFields) {
   // Bot 2; response 3
   if (bot2Destination.value === InputDestination.OPENAI) {
     const response = await generateOpenAIResponse(chatHistoryWithInstructionsOpenAI)
-    bot2Responses.value.push(response)
-    addToChatHistory(InputOrigin.BOT_2, response)
-  }
-  if (bot2Destination.value === InputDestination.AI21) {
-    const response = await generateAI21Response(chatHistoryWithInstructionsAI21)
     bot2Responses.value.push(response)
     addToChatHistory(InputOrigin.BOT_2, response)
   }
@@ -284,6 +234,7 @@ async function generate(fields: FormSubmissionFields) {
           :disabled="disableDropdowns"
           validation="required"
           validation-visibility="submit"
+          value="openai"
         />
 
         <FormKit
@@ -295,17 +246,18 @@ async function generate(fields: FormSubmissionFields) {
           :disabled="disableDropdowns"
           validation="required"
           validation-visibility="submit"
+          value="openai"
         />
 
         <FormKit
           type="dropdown"
           name="conversationLength"
           label="Conversation Length"
-          placeholder="Select"
           :options="conversationTurnOptions"
           :disabled="disableDropdowns"
           validation="required"
           validation-visibility="submit"
+          value="long"
         />
 
         <FormKit

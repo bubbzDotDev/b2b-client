@@ -6,5 +6,4 @@ export enum InputOrigin {
 
 export enum InputDestination {
   OPENAI = 'openai',
-  AI21 = 'ai21',
 }
