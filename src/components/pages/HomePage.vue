@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import {onMounted, ref} from "vue";
+import type { Ref } from "vue";
 import { generateOpenAIResponse, moderate } from "@/api/open-ai";
 import autoAnimate from "@formkit/auto-animate";
 import { InputDestination, InputOrigin } from "@/enums/input";
@@ -17,7 +18,7 @@ const bot2Responses = ref([] as Array<string>)
 const userInput = ref("")
 const previousUserInput = ref("")
 const chatHistoryMessageIsVisible = ref(false)
-const flagged = ref(false)
+const flagged:  Ref<boolean | undefined> = ref(false)
 const bot1Destination = ref("")
 const bot2Destination = ref("")
 const disableDropdowns = ref(false)
